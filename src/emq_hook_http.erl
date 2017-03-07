@@ -10,7 +10,7 @@
 
 -export([load/1, unload/0]).
 
--import(emq_auth_http_cli, [request/3, feedvar/2, feedvar/3]).
+-import(emq_hook_http_cli, [request/3, feedvar/2, feedvar/3]).
 
 %% Hooks functions
 
