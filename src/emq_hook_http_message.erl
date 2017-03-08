@@ -44,6 +44,10 @@ load(Env) ->
 
 %% ------------------------------------------------------------------------------------
 
+%% transform message and return
+on_message_publish(Message = #mqtt_message{topic = <<"$SYS/", _/binary>>}, _Env) ->
+  {ok, Message};
+
 on_message_publish(Message, _Env) ->
   io:format("\n publish ~s~n", [emqttd_message:format(Message)]),
   Action = on_message_publish,
