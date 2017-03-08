@@ -1,3 +1,6 @@
 ## emq_hook_http
+EMQ broker hook http plugin
 
-this emq hook http plugin
+## LICENSE
+Copyright © LiangMaYong
+Distributed under MIT license.

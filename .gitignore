@@ -1,13 +1,13 @@
 .eunit
-deps
 *.o
 *.beam
 *.plt
+emq_hook_http.d
 erl_crash.dump
-ebin
-rel/example_project
 .concrete/DEV_MODE
 .rebar
 .erlang.mk/
 data/
-emq_hook_http.d
+rel/
+deps/
+ebin/

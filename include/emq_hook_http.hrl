@@ -1,3 +1,2 @@
-
--record(http_request, {method = post, url, params}).
+-record(http_request, {method = post, appkey, url, params}).
 
