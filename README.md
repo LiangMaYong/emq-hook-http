@@ -1,3 +1,3 @@
 ## emq_hook_http
 
-this emq plugin
+this emq hook http plugin
