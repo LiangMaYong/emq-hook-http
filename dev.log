@@ -1,0 +1,4 @@
+
+ io:format("\n client(~s/~s) will subscribe: ~p~n", [Username, ClientId, TopicTable]),
+
+ client(12/C_1489020768379) will subscribe: [{<<"world">>,[{qos,0}]}]
