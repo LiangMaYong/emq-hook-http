@@ -58,15 +58,22 @@ unload() ->
 
 on_client_subscribe(ClientId, Username, TopicTable, _Env) ->
   io:format("\n client(~s/~s) will subscribe: ~p~n", [Username, ClientId, TopicTable]),
-  Topics = lists:foldl(fun({Topic, Opts}, Ts) -> Ts ++ "," ++ Topic end, "", TopicTable),
+  Topics = p_topics(TopicTable),
   Action = on_client_subscribe,
   do_hook_request(ClientId, Username, Action, Topics, TopicTable).
 
 on_client_unsubscribe(ClientId, Username, TopicTable, _Env) ->
   io:format("\n client(~s/~s) unsubscribe ~p~n", [ClientId, Username, TopicTable]),
-  Topics = lists:foldl(fun({Topic, Opts}, Ts) -> Ts ++ "," ++ Topic end, "", TopicTable),
+  Topics = p_topics(TopicTable),
   Action = on_client_unsubscribe,
   do_hook_request(ClientId, Username, Action, Topics, TopicTable).
+
+%% -------------------------------------------------------
+%% p_topics
+%% -------------------------------------------------------
+
+p_topics(TopicTable) ->
+  string:substr(lists:foldl(fun({Topic, _Opts}, Tips) -> Tips ++ "," ++ binary_to_list(Topic) end, "", TopicTable),2).
 
 %% -------------------------------------------------------
 %% Session

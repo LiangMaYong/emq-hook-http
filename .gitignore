@@ -1,6 +1,5 @@
 .eunit
 *.o
-*.beam
 *.plt
 emq_hook_http.d
 erl_crash.dump
@@ -10,4 +9,3 @@ erl_crash.dump
 data/
 rel/
 deps/
-ebin/

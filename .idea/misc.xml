@@ -7,5 +7,5 @@
       </MavenGeneralSettings>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_3" default="false" project-jdk-name="Erlang 19" project-jdk-type="Erlang SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="Erlang 19" project-jdk-type="Erlang SDK" />
 </project>
