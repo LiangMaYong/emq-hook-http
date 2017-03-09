@@ -31,4 +31,4 @@ emq.hook.http.hook_req.params = clientid=%c,username=%u,action=%a,appkey=%ak,top
 ## LICENSE
 Copyright © LiangMaYong
 
-Distributed under MIT license.
+Distributed under [MIT](https://github.com/LiangMaYong/emq-hook-http/blob/master/LICENSE) license.
