@@ -1,5 +1,8 @@
 ## emq_hook_http
 EMQ broker hook http plugin
+
+Home : [https://github.com/LiangMaYong/emq-hook-http](https://github.com/LiangMaYong/emq-hook-http)
+
 ## Setup
 In Makefile,
 ```
@@ -32,3 +35,8 @@ emq.hook.http.hook_req.params = clientid=%c,username=%u,action=%a,appkey=%ak,top
 Copyright © LiangMaYong
 
 Distributed under [MIT](https://github.com/LiangMaYong/emq-hook-http/blob/master/LICENSE) license.
+
+## Author
+LiangMaYong
+
+ibeam@qq.com
