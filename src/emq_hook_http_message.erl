@@ -70,7 +70,6 @@ on_message_acked(ClientId, Username, Message, _Env) ->
   Action = on_message_acked,
   do_hook_request(ClientId, Username, Action, Message).
 
-
 %% -------------------------------------------------------
 %% do_hook_request
 %% -------------------------------------------------------
