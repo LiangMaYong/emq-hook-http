@@ -17,7 +17,7 @@ In relx.config
 In _rel/emqttd/etc/plugins/emq_emq_hook_http.conf
 ```
 ##--------------------------------------------------------------------
-##  CHOOK HTTP CONFIG:
+##  HOOK HTTP CONFIG:
 ##--------------------------------------------------------------------
 ##  %u = username
 ##  %c = clientid
