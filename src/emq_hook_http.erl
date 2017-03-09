@@ -30,7 +30,7 @@
 
 -export([load/1, unload/0]).
 
--import(emq_hook_http_cli, [request/3, feed_params_val/6, feed_params_val/7]).
+-import(emq_hook_http_cli, [request/3, feed_params_val/5, feed_params_val/6, feed_params_val/7]).
 
 %% Hooks functions
 
@@ -58,11 +58,13 @@ unload() ->
 
 on_client_connected(ConnAck, Client = #mqtt_client{username = Username, client_id = ClientId}, _Env) ->
   io:format("\n client ~s connected, connack: ~w~n", [ClientId, ConnAck]),
-  do_hook_request(ClientId, Username, "on_client_connected", Client).
+  Action = on_client_connected,
+  do_hook_request(ClientId, Username, Action, Client).
 
 on_client_disconnected(Reason, _Client = #mqtt_client{username = Username, client_id = ClientId}, _Env) ->
   io:format("\n client ~s disconnected, reason: ~w~n", [ClientId, Reason]),
-  do_hook_request(ClientId, Username, "on_client_disconnected").
+  Action = on_client_disconnected,
+  do_hook_request(ClientId, Username, Action).
 
 %% -------------------------------------------------------
 %% Session
@@ -70,11 +72,13 @@ on_client_disconnected(Reason, _Client = #mqtt_client{username = Username, clien
 
 on_session_created(ClientId, Username, _Env) ->
   io:format("\n session(~s/~s) created.", [ClientId, Username]),
-  do_hook_request(ClientId, Username, "on_session_created").
+  Action = on_session_created,
+  do_hook_request(ClientId, Username, Action).
 
 on_session_terminated(ClientId, Username, Reason, _Env) ->
   io:format("\n session(~s/~s) terminated: ~p.", [ClientId, Username, Reason]),
-  do_hook_request(ClientId, Username, "on_session_terminated", Reason).
+  Action = on_session_terminated,
+  do_hook_request(ClientId, Username, Action, Reason).
 
 
 %% -------------------------------------------------------
@@ -82,23 +86,23 @@ on_session_terminated(ClientId, Username, Reason, _Env) ->
 %% -------------------------------------------------------
 
 do_hook_request(ClientId, Username, Action, Obj) ->
-  HookReq = r(application:get_env(emq_hook_http, hook_req, undefined)),
-  {do_http_request(ClientId, Username, Action, "", HookReq), Obj}.
+  HookReq = get_req(application:get_env(emq_hook_http, hook_req, undefined)),
+  {do_http_request(ClientId, Username, Action, HookReq), Obj}.
 
 do_hook_request(ClientId, Username, Action) ->
-  HookReq = r(application:get_env(emq_hook_http, hook_req, undefined)),
-  do_http_request(ClientId, Username, Action, "", HookReq).
+  HookReq = get_req(application:get_env(emq_hook_http, hook_req, undefined)),
+  do_http_request(ClientId, Username, Action, HookReq).
 
-do_http_request(ClientId, Username, Action, Topic, #http_request{method = Method, url = Url, params = Params, appkey = Appkey}) ->
-  case request(Method, Url, feed_params_val(Params, ClientId, Username, Action, Appkey, Topic)) of
+do_http_request(ClientId, Username, Action, #http_request{method = Method, url = Url, params = Params, appkey = Appkey}) ->
+  case request(Method, Url, feed_params_val(Params, ClientId, Username, Action, Appkey)) of
     {ok, 200, _Body} -> ok;
     {ok, _Code, _Body} -> error;
     {error, Error} -> lager:error("HTTP ~s Error: ~p", [Url, Error]), error
   end.
 
-r(Config) ->
-    Method = proplists:get_value(method, Config, post),
-    Url    = proplists:get_value(url, Config),
-    Params = proplists:get_value(params, Config),
-    AppKey = proplists:get_value(appkey, Config),
-    #http_request{method = Method, url = Url, params = Params, appkey = AppKey}.
+get_req(Config) ->
+  Method = proplists:get_value(method, Config, post),
+  Url = proplists:get_value(url, Config),
+  Params = proplists:get_value(params, Config),
+  AppKey = proplists:get_value(appkey, Config),
+  #http_request{method = Method, url = Url, params = Params, appkey = AppKey}.

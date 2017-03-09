@@ -22,7 +22,7 @@
 %% SOFTWARE.
 %%%--------------------------------------------------------------------------------
 
--module(emq_hook_http_sub).
+-module(emq_hook_http_subscription).
 
 -include("emq_hook_http.hrl").
 
@@ -30,7 +30,7 @@
 
 -export([load/1, unload/0]).
 
--import(emq_hook_http_cli, [request/3, feed_params_val/6, feed_params_val/7]).
+-import(emq_hook_http_cli, [request/3, feed_params_val/5, feed_params_val/6, feed_params_val/7]).
 
 %% Hooks functions
 
@@ -58,13 +58,13 @@ unload() ->
 
 on_client_subscribe(ClientId, Username, TopicTable, _Env) ->
   io:format("\n client(~s/~s) will subscribe: ~p~n", [Username, ClientId, TopicTable]),
-  Topics = "",
+  Topics = lists:foldl(fun({Topic, Opts}, Ts) -> Ts ++ "," ++ Topic end, "", TopicTable),
   Action = on_client_subscribe,
   do_hook_request(ClientId, Username, Action, Topics, TopicTable).
 
 on_client_unsubscribe(ClientId, Username, TopicTable, _Env) ->
   io:format("\n client(~s/~s) unsubscribe ~p~n", [ClientId, Username, TopicTable]),
-  Topics = "",
+  Topics = lists:foldl(fun({Topic, Opts}, Ts) -> Ts ++ "," ++ Topic end, "", TopicTable),
   Action = on_client_unsubscribe,
   do_hook_request(ClientId, Username, Action, Topics, TopicTable).
 
@@ -87,11 +87,11 @@ on_session_unsubscribed(ClientId, Username, {Topic, Opts}, _Env) ->
 %% -------------------------------------------------------
 
 do_hook_request(ClientId, Username, Action, Topic, Obj) ->
-  HookReq = r(application:get_env(emq_hook_http, hook_req, undefined)),
-  {do_http_request(ClientId, Username, Action, Topic, HookReq),Obj}.
+  HookReq = get_req(application:get_env(emq_hook_http, hook_req, undefined)),
+  {do_http_request(ClientId, Username, Action, Topic, HookReq), Obj}.
 
 do_hook_request(ClientId, Username, Action, Topic) ->
-  HookReq = r(application:get_env(emq_hook_http, hook_req, undefined)),
+  HookReq = get_req(application:get_env(emq_hook_http, hook_req, undefined)),
   do_http_request(ClientId, Username, Action, Topic, HookReq).
 
 do_http_request(ClientId, Username, Action, Topic, #http_request{method = Method, url = Url, params = Params, appkey = Appkey}) ->
@@ -101,9 +101,9 @@ do_http_request(ClientId, Username, Action, Topic, #http_request{method = Method
     {error, Error} -> lager:error("HTTP ~s Error: ~p", [Url, Error]), error
   end.
 
-r(Config) ->
-    Method = proplists:get_value(method, Config, post),
-    Url    = proplists:get_value(url, Config),
-    Params = proplists:get_value(params, Config),
-    AppKey = proplists:get_value(appkey, Config),
-    #http_request{method = Method, url = Url, params = Params, appkey = AppKey}.
+get_req(Config) ->
+  Method = proplists:get_value(method, Config, post),
+  Url = proplists:get_value(url, Config),
+  Params = proplists:get_value(params, Config),
+  AppKey = proplists:get_value(appkey, Config),
+  #http_request{method = Method, url = Url, params = Params, appkey = AppKey}.

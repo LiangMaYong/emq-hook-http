@@ -30,7 +30,7 @@
 
 -export([load/1, unload/0]).
 
--import(emq_hook_http_cli, [request/3, feed_params_val/6, feed_params_val/7]).
+-import(emq_hook_http_cli, [request/3, feed_params_val/5, feed_params_val/6, feed_params_val/7]).
 
 %% Hooks functions
 
@@ -45,7 +45,7 @@ load(Env) ->
 %% ------------------------------------------------------------------------------------
 
 on_message_publish(Message = #mqtt_message{topic = <<"$SYS/", _/binary>>}, _Env) ->
-{ok, Message};
+  {ok, Message};
 
 on_message_publish(Message, _Env) ->
   io:format("\n publish ~s~n", [emqttd_message:format(Message)]),
@@ -74,26 +74,26 @@ unload() ->
 %% do_hook_request
 %% ---------------------------
 
-do_hook_request(Action, Message = #mqtt_message{topic = Topic, payload = Payload,from = {ClientId,Username}}) ->
-  HookReq = r(application:get_env(emq_hook_http, hook_req, undefined)),
-do_http_request(ClientId, Username, Action, Topic,Payload, HookReq),
+do_hook_request(Action, Message = #mqtt_message{topic = Topic, payload = Payload, from = {ClientId, Username}}) ->
+  HookReq = get_req(application:get_env(emq_hook_http, hook_req, undefined)),
+  do_http_request(ClientId, Username, Action, Topic, Payload, HookReq),
   {ok, Message}.
 
 do_hook_request(ClientId, Username, Action, Message = #mqtt_message{topic = Topic, payload = Payload}) ->
-  HookReq = r(application:get_env(emq_hook_http, hook_req, undefined)),
-  do_http_request(ClientId, Username, Action, Topic,Payload, HookReq),
+  HookReq = get_req(application:get_env(emq_hook_http, hook_req, undefined)),
+  do_http_request(ClientId, Username, Action, Topic, Payload, HookReq),
   {ok, Message}.
 
-do_http_request(ClientId, Username, Action, Topic,Payload,#http_request{method = Method, url = Url, params = Params, appkey = Appkey}) ->
+do_http_request(ClientId, Username, Action, Topic, Payload, #http_request{method = Method, url = Url, params = Params, appkey = Appkey}) ->
   case request(Method, Url, feed_params_val(Params, ClientId, Username, Action, Appkey, Topic, Payload)) of
     {ok, 200, _Body} -> ok;
     {ok, _Code, _Body} -> error;
     {error, Error} -> lager:error("HTTP ~s Error: ~p", [Url, Error]), error
   end.
 
-r(Config) ->
-    Method = proplists:get_value(method, Config, post),
-    Url    = proplists:get_value(url, Config),
-    Params = proplists:get_value(params, Config),
-    AppKey = proplists:get_value(appkey, Config),
-    #http_request{method = Method, url = Url, params = Params, appkey = AppKey}.
+get_req(Config) ->
+  Method = proplists:get_value(method, Config, post),
+  Url = proplists:get_value(url, Config),
+  Params = proplists:get_value(params, Config),
+  AppKey = proplists:get_value(appkey, Config),
+  #http_request{method = Method, url = Url, params = Params, appkey = AppKey}.

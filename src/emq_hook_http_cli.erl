@@ -26,7 +26,7 @@
 
 -include_lib("emqttd/include/emqttd.hrl").
 
--export([request/3, feed_params_val/6, feed_params_val/7]).
+-export([request/3, feed_params_val/5, feed_params_val/6, feed_params_val/7]).
 
 %%--------------------------------------------------------------------
 %% HTTP Request
@@ -51,27 +51,38 @@ reply({error, Error}) ->
 %% HTTP feed_params_val
 %%--------------------------------------------------------------------
 
-feed_params_val(Params, ClientId, Username, Action, AppKey,Topic) ->
-lists:map(fun
-({Param, "%c"}) -> {Param, ClientId};
-({Param, "%u"}) -> {Param, Username};
-({Param, "%a"}) -> {Param, Action};
-({Param, "%ak"}) -> {Param, AppKey};
-({Param, "%t"}) -> {Param, Topic};
-({Param, "%p"}) -> {Param, ""};
-(Param) -> Param
-end, Params).
+feed_params_val(Params, ClientId, Username, Action, AppKey) ->
+  lists:map(fun
+              ({Param, "%c"}) -> {Param, ClientId};
+              ({Param, "%u"}) -> {Param, Username};
+              ({Param, "%a"}) -> {Param, Action};
+              ({Param, "%ak"}) -> {Param, AppKey};
+              ({Param, "%t"}) -> {Param, ""};
+              ({Param, "%p"}) -> {Param, ""};
+              (Param) -> Param
+            end, Params).
+
+feed_params_val(Params, ClientId, Username, Action, AppKey, Topic) ->
+  lists:map(fun
+              ({Param, "%c"}) -> {Param, ClientId};
+              ({Param, "%u"}) -> {Param, Username};
+              ({Param, "%a"}) -> {Param, Action};
+              ({Param, "%ak"}) -> {Param, AppKey};
+              ({Param, "%t"}) -> {Param, Topic};
+              ({Param, "%p"}) -> {Param, ""};
+              (Param) -> Param
+            end, Params).
 
 feed_params_val(Params, ClientId, Username, Action, AppKey, Topic, Payload) ->
-lists:map(fun
-({Param, "%c"}) -> {Param, ClientId};
-({Param, "%u"}) -> {Param, Username};
-({Param, "%a"}) -> {Param, Action};
-({Param, "%ak"}) -> {Param, AppKey};
-({Param, "%t"}) -> {Param, Topic};
-({Param, "%p"}) -> {Param, Payload};
-(Param) -> Param
-end, Params).
+  lists:map(fun
+              ({Param, "%c"}) -> {Param, ClientId};
+              ({Param, "%u"}) -> {Param, Username};
+              ({Param, "%a"}) -> {Param, Action};
+              ({Param, "%ak"}) -> {Param, AppKey};
+              ({Param, "%t"}) -> {Param, Topic};
+              ({Param, "%p"}) -> {Param, Payload};
+              (Param) -> Param
+            end, Params).
 
 
 
