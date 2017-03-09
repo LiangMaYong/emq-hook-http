@@ -52,43 +52,42 @@ unload() ->
   emqttd:unhook('session.created', fun ?MODULE:on_session_created/3),
   emqttd:unhook('session.terminated', fun ?MODULE:on_session_terminated/4).
 
-%% ------------------------------------------------------------------------------------------------
+%% -------------------------------------------------------
 %% Client
-%% ------------------------------------------------------------------------------------------------
+%% -------------------------------------------------------
 
 on_client_connected(ConnAck, Client = #mqtt_client{username = Username, client_id = ClientId}, _Env) ->
   io:format("\n client ~s connected, connack: ~w~n", [ClientId, ConnAck]),
-  do_hook_request(ClientId, Username, "on_client_connected", "", Client).
+  do_hook_request(ClientId, Username, "on_client_connected", Client).
 
 on_client_disconnected(Reason, _Client = #mqtt_client{username = Username, client_id = ClientId}, _Env) ->
   io:format("\n client ~s disconnected, reason: ~w~n", [ClientId, Reason]),
-  do_hook_request(ClientId, Username, "on_client_disconnected", "").
+  do_hook_request(ClientId, Username, "on_client_disconnected").
 
-%% ------------------------------------------------------------------------------------------------
+%% -------------------------------------------------------
 %% Session
-%% ------------------------------------------------------------------------------------------------
+%% -------------------------------------------------------
 
 on_session_created(ClientId, Username, _Env) ->
   io:format("\n session(~s/~s) created.", [ClientId, Username]),
-  do_hook_request(ClientId, Username, "on_session_created", "").
+  do_hook_request(ClientId, Username, "on_session_created").
 
 on_session_terminated(ClientId, Username, Reason, _Env) ->
   io:format("\n session(~s/~s) terminated: ~p.", [ClientId, Username, Reason]),
-  do_hook_request(ClientId, Username, "on_session_terminated", "", Reason).
+  do_hook_request(ClientId, Username, "on_session_terminated", Reason).
 
-%% ---------------------------
+
+%% -------------------------------------------------------
 %% do_hook_request
-%% ---------------------------
+%% -------------------------------------------------------
 
-do_hook_request(ClientId, Username, Action, Topic, Obj) ->
+do_hook_request(ClientId, Username, Action, Obj) ->
   HookReq = r(application:get_env(emq_hook_http, hook_req, undefined)),
-  do_http_request(ClientId, Username, Action, Topic, HookReq),
-  {ok, Obj}.
+  {do_http_request(ClientId, Username, Action, "", HookReq), Obj}.
 
-do_hook_request(ClientId, Username, Action, Topic) ->
+do_hook_request(ClientId, Username, Action) ->
   HookReq = r(application:get_env(emq_hook_http, hook_req, undefined)),
-  do_http_request(ClientId, Username, Action, Topic, HookReq),
-  ok.
+  do_http_request(ClientId, Username, Action, "", HookReq).
 
 do_http_request(ClientId, Username, Action, Topic, #http_request{method = Method, url = Url, params = Params, appkey = Appkey}) ->
   case request(Method, Url, feed_params_val(Params, ClientId, Username, Action, Appkey, Topic)) of
