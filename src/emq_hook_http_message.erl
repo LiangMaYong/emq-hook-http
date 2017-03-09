@@ -42,7 +42,15 @@ load(Env) ->
   emqttd:hook('message.delivered', fun ?MODULE:on_message_delivered/4, [Env]),
   emqttd:hook('message.acked', fun ?MODULE:on_message_acked/4, [Env]).
 
-%% ------------------------------------------------------------------------------------
+%% Called when the plugin application stop
+unload() ->
+  emqttd:unhook('message.publish', fun ?MODULE:on_message_publish/2),
+  emqttd:unhook('message.delivered', fun ?MODULE:on_message_delivered/4),
+  emqttd:unhook('message.acked', fun ?MODULE:on_message_acked/4).
+
+%% -------------------------------------------------------
+%% Message
+%% -------------------------------------------------------
 
 on_message_publish(Message = #mqtt_message{topic = <<"$SYS/", _/binary>>}, _Env) ->
   {ok, Message};
@@ -62,17 +70,10 @@ on_message_acked(ClientId, Username, Message, _Env) ->
   Action = on_message_acked,
   do_hook_request(ClientId, Username, Action, Message).
 
-%% ------------------------------------------------------------------------------------
 
-%% Called when the plugin application stop
-unload() ->
-  emqttd:unhook('message.publish', fun ?MODULE:on_message_publish/2),
-  emqttd:unhook('message.delivered', fun ?MODULE:on_message_delivered/4),
-  emqttd:unhook('message.acked', fun ?MODULE:on_message_acked/4).
-
-%% ---------------------------
+%% -------------------------------------------------------
 %% do_hook_request
-%% ---------------------------
+%% -------------------------------------------------------
 
 do_hook_request(Action, Message = #mqtt_message{topic = Topic, payload = Payload, from = {ClientId, Username}}) ->
   HookReq = get_req(application:get_env(emq_hook_http, hook_req, undefined)),
