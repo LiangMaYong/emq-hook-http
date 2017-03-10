@@ -96,8 +96,8 @@ do_hook_request(ClientId, Username, Action) ->
 do_http_request(ClientId, Username, Action, #http_request{method = Method, url = Url, params = Params, appkey = Appkey}) ->
   case request(Method, Url, feed_params_val(Params, ClientId, Username, Action, Appkey)) of
     {ok, 200, _Body} -> ok;
-    {ok, _Code, _Body} -> error;
-    {error, Error} -> lager:error("HTTP ~s Error: ~p", [Url, Error]), error
+    {ok, Code, _Body} -> error;
+    {error, Error} -> error
   end.
 
 get_req(Config) ->
