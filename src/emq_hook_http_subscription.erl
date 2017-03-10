@@ -73,7 +73,8 @@ on_client_unsubscribe(ClientId, Username, TopicTable, _Env) ->
 %% -------------------------------------------------------
 
 p_topics(TopicTable) ->
-  string:substr(lists:foldl(fun({Topic, _Opts}, Tips) -> Tips ++ "," ++ binary_to_list(Topic) end, "", TopicTable),2).
+  string:substr(lists:foldl(fun({Topic, _Opts}, Topics) ->
+    Topics ++ "," ++ binary_to_list(Topic) end, "", TopicTable), 2).
 
 %% -------------------------------------------------------
 %% Session
@@ -104,8 +105,8 @@ do_hook_request(ClientId, Username, Action, Topic) ->
 do_http_request(ClientId, Username, Action, Topic, #http_request{method = Method, url = Url, params = Params, appkey = Appkey}) ->
   case request(Method, Url, feed_params_val(Params, ClientId, Username, Action, Appkey, Topic)) of
     {ok, 200, _Body} -> ok;
-    {ok, Code, _Body} -> error;
-    {error, Error} -> error
+    {ok, _Code, _Body} -> error;
+    {error, _Error} -> error
   end.
 
 get_req(Config) ->

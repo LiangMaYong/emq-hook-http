@@ -85,8 +85,8 @@ do_hook_request(ClientId, Username, Action, Message = #mqtt_message{topic = Topi
 do_http_request(ClientId, Username, Action, Topic, Payload, #http_request{method = Method, url = Url, params = Params, appkey = Appkey}) ->
   case request(Method, Url, feed_params_val(Params, ClientId, Username, Action, Appkey, Topic, Payload)) of
     {ok, 200, _Body} -> ok;
-    {ok, Code, _Body} -> error;
-    {error, Error} -> error
+    {ok, _Code, _Body} -> error;
+    {error, _Error} -> error
   end.
 
 get_req(Config) ->
