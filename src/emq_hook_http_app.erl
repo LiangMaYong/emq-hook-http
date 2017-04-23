@@ -33,10 +33,10 @@ start(_StartType, _StartArgs) ->
   {ok, Sup} = emq_hook_http_super:start_link(),
   emq_hook_http_subscription:load(application:get_all_env()),
   emq_hook_http_message:load(application:get_all_env()),
-  emq_hook_http:load(application:get_all_env()),
+  emq_hook_http_connect:load(application:get_all_env()),
   {ok, Sup}.
 
 stop(_State) ->
   emq_hook_http_subscription:unload(),
   emq_hook_http_message:unload(),
-  emq_hook_http:unload().
+  emq_hook_http_connect:unload().

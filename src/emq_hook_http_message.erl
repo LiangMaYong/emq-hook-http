@@ -52,7 +52,8 @@ unload() ->
 %% Message
 %% -------------------------------------------------------
 
-on_message_publish(Message = #mqtt_message{topic = <<"$SYS/", _/binary>>}, _Env) ->
+on_message_publish(Message = #mqtt_message{topic = <<"$SYS/", _/binary>> = Topic}, _Env) ->
+  io:format("\n publish system ~s~n", Topic),
   {ok, Message};
 
 on_message_publish(Message, _Env) ->
