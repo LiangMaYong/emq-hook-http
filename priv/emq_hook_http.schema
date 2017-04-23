@@ -22,6 +22,10 @@
 %% SOFTWARE.
 %%%--------------------------------------------------------------------------------
 
+%%%---------------------------------------------------
+////// HOOK
+%%%---------------------------------------------------
+
 {mapping, "emq.hook.http.hook_req", "emq_hook_http.hook_req", [
   {datatype, string}
 ]}.
@@ -46,4 +50,3 @@
    {method, cuttlefish:conf_get("emq.hook.http.hook_req.method", Conf)},
    {params, [list_to_tuple(string:tokens(S, "=")) || S <- string:tokens(Params, ",")]}]
 end}.
-
