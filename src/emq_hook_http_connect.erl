@@ -22,7 +22,7 @@
 %% SOFTWARE.
 %%%--------------------------------------------------------------------------------
 
--module(emq_hook_http).
+-module(emq_hook_http_connect).
 
 -include("emq_hook_http.hrl").
 
