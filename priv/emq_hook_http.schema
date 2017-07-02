@@ -26,6 +26,7 @@
 %% HOOK
 %%%---------------------------------------------------
 
+
 {mapping, "emq.hook.http.hook_req", "emq_hook_http.hook_req", [
   {default, undefined},
   {datatype, string}
@@ -50,6 +51,38 @@
     Url -> Params = cuttlefish:conf_get("emq.hook.http.hook_req.params", Conf),
            [{url, Url}, {method, cuttlefish:conf_get("emq.hook.http.hook_req.method", Conf)},
             {appkey, cuttlefish:conf_get("emq.hook.http.hook_req.appkey", Conf)},
+            {params, [list_to_tuple(string:tokens(S, "=")) || S <- string:tokens(Params, ",")]}]
+  end
+end}.
+
+%%%---------------------------------------------------
+%% AUTH
+%%%---------------------------------------------------
+
+{mapping, "emq.hook.http.auth_req", "emq_hook_http.auth_req", [
+  {default, undefined},
+  {datatype, string}
+]}.
+
+{mapping, "emq.hook.http.auth_req.method", "emq_hook_http.auth_req", [
+  {default, post},
+  {datatype, {enum, [post, get]}}
+]}.
+
+{mapping, "emq.hook.http.auth_req.params", "emq_hook_http.auth_req", [
+  {datatype, string}
+]}.
+
+{mapping, "emq.hook.http.auth_req.appkey", "emq_hook_http.auth_req", [
+  {datatype, string}
+]}.
+
+{translation, "emq_hook_http.auth_req", fun(Conf) ->
+  case cuttlefish:conf_get("emq.hook.http.auth_req", Conf, undefined) of
+    undefined -> cuttlefish:unset();
+    Url -> Params = cuttlefish:conf_get("emq.hook.http.auth_req.params", Conf),
+           [{url, Url}, {method, cuttlefish:conf_get("emq.hook.http.auth_req.method", Conf)},
+            {appkey, cuttlefish:conf_get("emq.hook.http.auth_req.appkey", Conf)},
             {params, [list_to_tuple(string:tokens(S, "=")) || S <- string:tokens(Params, ",")]}]
   end
 end}.
