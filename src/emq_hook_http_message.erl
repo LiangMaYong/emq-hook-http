@@ -26,6 +26,10 @@
 
 -include("emq_hook_http.hrl").
 
+-include_lib("emqttd/include/emqttd.hrl").
+
+-include_lib("emqttd/include/emqttd_protocol.hrl").
+
 -export([load/1, unload/0]).
 
 -import(emq_hook_http_cli, [request/3, feed_params_val/5, feed_params_val/6, feed_params_val/7]).
