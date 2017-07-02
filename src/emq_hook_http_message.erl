@@ -28,6 +28,8 @@
 
 -include_lib("emqttd/include/emqttd.hrl").
 
+-include_lib("emqttd/include/emqttd_protocol.hrl").
+
 -export([load/1, unload/0]).
 
 -import(emqttd_protocol, [client/1]).
