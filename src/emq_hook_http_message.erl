@@ -79,7 +79,8 @@ on_message_acked(ClientId, Username, Message, _Env) ->
 
 do_handle_sub_acked(ClientId)->
   ClientPid = spawn(fun()-> void end),
-  io:format("\n client ~s do_handle_sub_acked, pid: ~s", [ClientId, ClientPid]),
+  io:format("\n client ~s do_handle_sub_acked", [ClientId]),
+  ClientPid ! {subscribe, "$sub/"+ClientId},
   ok.
 
 %% -------------------------------------------------------
