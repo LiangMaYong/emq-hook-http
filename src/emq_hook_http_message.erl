@@ -78,6 +78,7 @@ on_message_acked(ClientId, Username, Message, _Env) ->
 
 on_message_acked(ClientId, Username,Message = #mqtt_message{topic = <<"$SUB/", _/binary>>}, _Env) ->
   io:format("\n client(~s/~s) acked: ~s~n", [Username, ClientId, emqttd_message:format(Message)]),
+  State = get_client_stats(ClientId),
   ok.
 
 %% -------------------------------------------------------
