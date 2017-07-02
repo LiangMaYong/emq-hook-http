@@ -82,16 +82,13 @@ on_message_acked(ClientId, Username, Message = #mqtt_message{topic = <<"$SUB/", 
   io:format("\n client(~s/~s) acked: ~s~n", [Username, ClientId, emqttd_message:format(Message)]),
   Client = client(get_client_stats(ClientId)),
   do_handle_sub_acked(Client),
-  Action = on_message_acked,
-  do_hook_request(ClientId, Username, Action, Message).
+  ok.
 
 %% -------------------------------------------------------
 %% do handle sub acked
 %% -------------------------------------------------------
 
-do_handle_sub_acked(Client = #mqtt_client{client_id  = ClientId,client_pid =
-  client_pid = ClientPid,
-  username   = Username})->
+do_handle_sub_acked(Client = #mqtt_client{client_id  = ClientId,client_pid = ClientPid, username   = Username})->
   io:format("\n client ~s do_handle_sub_acked, pid: ~w~n", [ClientId, ClientPid]),
   {ok, Client};
 
