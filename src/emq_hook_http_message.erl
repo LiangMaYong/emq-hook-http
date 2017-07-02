@@ -81,8 +81,9 @@ on_message_acked(ClientId, Username, Message, _Env) ->
 %% do_handle_sub_acked
 %% -------------------------------------------------------
 
-do_handle_sub_acked(_ClientPid,_ClientId)->
+do_handle_sub_acked(ClientPid,ClientId)->
   io:format("client do_handle_sub_acked"),
+  ClientPid ! {subscribe, [{"$SUB/"+ClientId, 1}]},
   ok.
 
 %% -------------------------------------------------------
