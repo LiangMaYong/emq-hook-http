@@ -84,7 +84,7 @@ on_message_acked(ClientId, Username, Message, _Env) ->
 
 do_handle_sub_acked(#mqtt_message{topic = <<"$SUB/", _/binary>>},Client = #mqtt_client{client_id  = ClientId,client_pid = ClientPid, username   = Username})->
   io:format("\n client ~s do_handle_sub_acked, pid: ~w~n", [ClientId, ClientPid]),
-  {ok, Client};
+  {ok, Client}.
 
 %% -------------------------------------------------------
 %% do_hook_request
