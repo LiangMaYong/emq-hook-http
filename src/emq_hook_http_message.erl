@@ -30,6 +30,8 @@
 
 -export([load/1, unload/0]).
 
+-import(emqttd_protocol, [client/1]).
+
 -import(emq_hook_http_cli, [request/3, feed_params_val/5, feed_params_val/6, feed_params_val/7]).
 
 %% Hooks functions
@@ -69,6 +71,24 @@ on_message_acked(ClientId, Username, Message, _Env) ->
   io:format("\n client(~s/~s) acked: ~s~n", [Username, ClientId, emqttd_message:format(Message)]),
   Action = on_message_acked,
   do_hook_request(ClientId, Username, Action, Message).
+
+on_message_acked(ClientId, Username, Message = #mqtt_message{topic = <<"$SUB/", _/binary>>}, _Env) ->
+  io:format("\n client(~s/~s) acked: ~s~n", [Username, ClientId, emqttd_message:format(Message)]),
+  State1 = State#proto_state{client_id = ClientId},
+  Client = client(State1),
+  do_handle_sub_acked(Client),
+  Action = on_message_acked,
+  do_hook_request(ClientId, Username, Action, Message).
+
+%% -------------------------------------------------------
+%% do handle sub acked
+%% -------------------------------------------------------
+
+do_handle_sub_acked(Client = #mqtt_client{client_id  = ClientId,
+  client_pid = ClientPid,
+  username   = Username})->
+  io:format("\n client ~s do_handle_sub_acked, pid: ~w~n", [ClientId, ClientPid]),
+  {ok, Client};
 
 %% -------------------------------------------------------
 %% do_hook_request
