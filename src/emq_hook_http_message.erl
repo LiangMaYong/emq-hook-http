@@ -87,7 +87,7 @@ on_message_acked(ClientId, Username,Message = #mqtt_message{topic = <<"$SUB/", _
 %% do_handle_sub_acked
 %% -------------------------------------------------------
 
-do_handle_sub_acked(Client = #mqtt_client{client_id  = ClientId,client_pid = ClientPid})->
+do_handle_sub_acked(_Client = #mqtt_client{client_id  = ClientId,client_pid = ClientPid})->
   io:format("\n client ~s do_handle_sub_acked, pid: ~w~n", [ClientId, ClientPid]),
   ok.
 
