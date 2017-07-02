@@ -26,10 +26,6 @@
 
 -include("emq_hook_http.hrl").
 
--include_lib("emqttd/include/emqttd.hrl").
-
--include_lib("emqttd/include/emqttd_protocol.hrl").
-
 -export([load/1, unload/0]).
 
 -import(emq_hook_http_cli, [request/3, feed_params_val/5, feed_params_val/6, feed_params_val/7]).
@@ -69,7 +65,7 @@ on_message_delivered(ClientId, Username, Message, _Env) ->
 
 on_message_acked(ClientId, Username, Message, _Env) ->
   io:format("\n client(~s/~s) acked: ~s~n", [Username, ClientId, emqttd_message:format(Message)]),
-  do_handle_sub_acked(ClientId),
+  do_handle_sub_acked(Message,ClientId),
   Action = on_message_acked,
   do_hook_request(ClientId, Username, Action, Message).
 
@@ -77,10 +73,8 @@ on_message_acked(ClientId, Username, Message, _Env) ->
 %% do_handle_sub_acked
 %% -------------------------------------------------------
 
-do_handle_sub_acked(ClientId)->
-  ClientPid = spawn(fun()-> void end),
+do_handle_sub_acked(_Message = #mqtt_message{topic = <<"$SUB/", _/binary>>},ClientId)->
   io:format("\n client ~s do_handle_sub_acked", [ClientId]),
-  ClientPid ! {subscribe, "$sub/"+ClientId},
   ok.
 
 %% -------------------------------------------------------
