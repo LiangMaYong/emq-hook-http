@@ -81,9 +81,10 @@ on_message_acked(ClientId, Username, Message, _Env) ->
 %% do_handle_sub_acked
 %% -------------------------------------------------------
 
-do_handle_sub_acked(ClientPid,_ClientId)->
-  io:format("\n client do_handle_sub_acked"),
-  TopicTable = [{"100001", 1}],
+do_handle_sub_acked(ClientPid,ClientId)->
+  io:format("\n  do_handle_sub_acked client ~s~n",[ClientId]),
+  Topic = #mqtt_topic{topic="100001",qos=1},
+  TopicTable = [Topic],
   ClientPid ! {subscribe, TopicTable},
   ok.
 
