@@ -83,7 +83,7 @@ on_message_acked(ClientId, Username, Message, _Env) ->
 
 do_handle_sub_acked(ClientPid,ClientId)->
   io:format("\n  do_handle_sub_acked client ~s~n",[ClientId]),
-  TopicTable = [{<<"TopicA">>,[{qos,1}]}],
+  TopicTable = [{<<"TopicA">>,1}],
   emqttd_client:subscribe(ClientPid, TopicTable),
   ok.
 
