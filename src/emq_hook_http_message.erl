@@ -78,7 +78,7 @@ on_message_acked(ClientId, Username, Message, _Env) ->
 %% do_handle_sub_acked
 %% -------------------------------------------------------
 
-do_handle_sub_acked(_Message = #mqtt_message{topic = <<"$PA/AUTO_SUB/", _/binary>>, payload = Payload}, _Client = #mqtt_client{username = Username, client_id = ClientId, client_pid = ClientPid}) ->
+do_handle_sub_acked(_Message = #mqtt_message{topic = <<"$PA/AUTO_SUB/", _/binary>>, payload = Payload}, _Client = #mqtt_client{client_id = ClientId, client_pid = ClientPid}) ->
   io:format("\n  auto sub client ~s,pid:~w~n", [ClientId, ClientPid]),
   TopicTable = [{Payload, 1}],
   ClientPid ! {subscribe, TopicTable},
