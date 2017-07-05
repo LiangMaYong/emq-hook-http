@@ -32,10 +32,6 @@
 
 -export([load/1, unload/0]).
 
--import(emqttd_stats, [client/1]).
-
--import(emqttd_protocol, [get_client_stats/1]).
-
 -import(emq_hook_http_cli, [request/3, feed_params_val/5, feed_params_val/6, feed_params_val/7]).
 
 %% Hooks functions
@@ -73,7 +69,7 @@ on_message_delivered(ClientId, Username, Message, _Env) ->
 
 on_message_acked(ClientId, Username, Message, _Env) ->
   io:format("\n client(~s/~s) acked: ~s~n", [Username, ClientId, emqttd_message:format(Message)]),
-  do_handle_sub_acked(emqtt_sm:lookup_session(ClientId),ClientId),
+  do_handle_sub_acked(emqttd_sm:lookup_session(ClientId),ClientId),
   Action = on_message_acked,
   do_hook_request(ClientId, Username, Action, Message).
 
