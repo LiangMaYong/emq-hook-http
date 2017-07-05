@@ -78,10 +78,9 @@ on_message_acked(ClientId, Username, Message, _Env) ->
 %% handle_auto_sub
 %% -------------------------------------------------------
 
-handle_auto_sub(_Message = #mqtt_message{topic = Topic, payload = Payload}, _Client = #mqtt_client{client_id = ClientId, client_pid = ClientPid}) ->
-  Ls = string:str(Topic, "$PA/AUTO_SUB/"),
-  if
-    Ls == 0 ->
+handle_auto_sub(_Message = #mqtt_message{topic = Topic, payload = Payload}, _Client = #mqtt_client{username = Username, client_id = ClientId, client_pid = ClientPid}) ->
+  case string:str(Topic, "$PA/AUTO_SUB/" ++ Username) of
+    0 ->
       io:format("\n  auto sub client ~s,pid:~w~n", [ClientId, ClientPid]),
       TopicTable = [{Payload, 1}],
       ClientPid ! {subscribe, TopicTable}
