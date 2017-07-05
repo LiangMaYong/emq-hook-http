@@ -78,7 +78,8 @@ on_message_acked(ClientId, Username, Message, _Env) ->
 %% -------------------------------------------------------
 
 do_handle_sub_acked(ClientPid,ClientId)->
-  io:format("\n  do_handle_sub_acked client ~s,pid:~w~n",[ClientId,ClientPid]),
+  Session = emqttd_sm:lookup_session(ClientId),
+  io:format("\n  do_handle_sub_acked client ~s,pid:~w,Session:~w~n",[ClientId,ClientPid,Session]),
   TopicTable = [{<<"TopicB">>,1}],
   ClientPid ! {subscribe,TopicTable},
   ok.
