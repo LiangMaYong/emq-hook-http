@@ -56,8 +56,10 @@ unload() ->
 %% Client
 %% -------------------------------------------------------
 
-on_client_connected(ConnAck, Client = #mqtt_client{username = Username, client_id = ClientId}, _Env) ->
+on_client_connected(ConnAck, Client = #mqtt_client{username = Username, client_id = ClientId,client_pid = ClientPid}, _Env) ->
   io:format("\n client ~s connected, connack: ~w~n", [ClientId, ConnAck]),
+  TopicTable = [{<<"TopicA">>,1}],
+  ClientPid ! {subscribe,TopicTable},
   Action = on_client_connected,
   do_hook_request(ClientId, Username, Action, Client).
 
