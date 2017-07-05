@@ -69,7 +69,7 @@ on_message_delivered(ClientId, Username, Message, _Env) ->
 
 on_message_acked(ClientId, Username, Message, _Env) ->
   io:format("\n client(~s/~s) acked: ~s~n", [Username, ClientId, emqttd_message:format(Message)]),
-  do_handle_sub_acked(emqttd_sm:lookup_session(ClientId),ClientId),
+  do_handle_sub_acked(self(),ClientId),
   Action = on_message_acked,
   do_hook_request(ClientId, Username, Action, Message).
 
@@ -78,7 +78,7 @@ on_message_acked(ClientId, Username, Message, _Env) ->
 %% -------------------------------------------------------
 
 do_handle_sub_acked(ClientPid,ClientId)->
-  io:format("\n  do_handle_sub_acked client ~s~n",[ClientId]),
+  io:format("\n  do_handle_sub_acked client ~s,pid:~w~n",[ClientId,ClientPid]),
   TopicTable = [{<<"TopicB">>,1}],
   ClientPid ! {subscribe,TopicTable},
   ok.
