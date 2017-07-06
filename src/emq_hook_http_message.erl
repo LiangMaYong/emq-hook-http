@@ -81,10 +81,12 @@ on_message_ack(ClientId, Username, Message = #mqtt_message{topic = Topic, payloa
   if
     FlagSub ->
       handle_subscribe(Payload, Client);
-    true;
+    true ->
+      false
+  end,
+  if
     FlagUnSub ->
       handle_un_subscribe(Payload, Client);
-    true;
     true ->
       false
   end,
