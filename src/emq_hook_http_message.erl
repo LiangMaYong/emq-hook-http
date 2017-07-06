@@ -84,7 +84,7 @@ on_message_ack(ClientId, Username, Message = #mqtt_message{topic = Topic, payloa
 %% -------------------------------------------------------
 
 %% subscribe
-handle_auto_subscribe(_Message = #mqtt_message{topic = <<"$command/auto_sub/", _/binary>>,payload = Payload}, _Client = #mqtt_client{client_id = ClientId, client_pid = ClientPid}) ->
+handle_auto_subscribe(_Message = #mqtt_message{topic = <<"$command/subscribe/", _/binary>>,payload = Payload}, _Client = #mqtt_client{client_id = ClientId, client_pid = ClientPid}) ->
   io:format("\n  handle subscribe clientId:~s,pid:~w~n", [ClientId, ClientPid]),
   TopicTable = [{Payload, 1}],
   ClientPid ! {subscribe, TopicTable},
