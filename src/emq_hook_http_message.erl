@@ -74,8 +74,8 @@ on_message_delivered(ClientId, Username, Message, _Env) ->
 on_message_ack(ClientId, Username, Message = #mqtt_message{topic = Topic, payload = Payload}, _Env) ->
   io:format("\n client(~s/~s) acked: ~s~n", [Username, ClientId, emqttd_message:format(Message)]),
   Client = emqttd_cm:lookup(ClientId),
-  SubTopic = ists:concat(["$command/auto_sub/", Username, "/sub/"]),
-  UnSubTopic = ists:concat(["$command/auto_sub/", Username, "/unsub/"]),
+  SubTopic = lists:concat(["$command/auto_sub/", Username, "/sub/"]),
+  UnSubTopic = lists:concat(["$command/auto_sub/", Username, "/unsub/"]),
   FlagSub = string:equal(binary_to_list(Topic), SubTopic),
   FlagUnSub = string:equal(binary_to_list(Topic), UnSubTopic),
   if
