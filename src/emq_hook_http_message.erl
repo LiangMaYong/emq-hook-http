@@ -84,6 +84,7 @@ on_message_ack(ClientId, Username, Message = #mqtt_message{topic = Topic, payloa
     true;
     FlagUnSub ->
       handle_un_subscribe(Payload, Client);
+    true;
     true ->
       false
   end,
@@ -104,7 +105,7 @@ handle_subscribe(Topic, _Client = #mqtt_client{client_id = ClientId, client_pid 
 %% un subscribe
 handle_un_subscribe(Topic, _Client = #mqtt_client{client_id = ClientId, client_pid = ClientPid}) ->
   io:format("\n  handle un subscribe clientId:~s,pid:~w~n", [ClientId, ClientPid]),
-  TopicTable = [{Topic}],
+  TopicTable = [{Topic, 1}],
   ClientPid ! {unsubscribe, TopicTable},
   ok.
 
