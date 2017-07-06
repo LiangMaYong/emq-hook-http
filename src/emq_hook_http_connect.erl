@@ -88,11 +88,11 @@ on_session_terminated(ClientId, Username, Reason, _Env) ->
 %% -------------------------------------------------------
 
 do_hook_request(ClientId, Username, Action, Obj) ->
-  HookReq = get_req(application:get_env(emq_hook_http, hook_req, undefined)),
+  HookReq = get_request(application:get_env(emq_hook_http, hook, undefined)),
   {do_http_request(ClientId, Username, Action, HookReq), Obj}.
 
 do_hook_request(ClientId, Username, Action) ->
-  HookReq = get_req(application:get_env(emq_hook_http, hook_req, undefined)),
+  HookReq = get_request(application:get_env(emq_hook_http, hook, undefined)),
   do_http_request(ClientId, Username, Action, HookReq).
 
 do_http_request(ClientId, Username, Action, #http_request{method = Method, url = Url, params = Params, appkey = Appkey}) ->
@@ -102,7 +102,7 @@ do_http_request(ClientId, Username, Action, #http_request{method = Method, url =
     {error, _Error} -> error
   end.
 
-get_req(Config) ->
+get_request(Config) ->
   Method = proplists:get_value(method, Config, post),
   Url = proplists:get_value(url, Config),
   Params = proplists:get_value(params, Config),

@@ -95,12 +95,12 @@ on_session_unsubscribed(ClientId, Username, {Topic, Opts}, _Env) ->
 %% -------------------------------------------------------
 
 do_hook_request(ClientId, Username, Action, Topic, Obj) ->
-  HookReq = get_req(application:get_env(emq_hook_http, hook_req, undefined)),
-  {do_http_request(ClientId, Username, Action, Topic, HookReq), Obj}.
+  HookRequest = get_request(application:get_env(emq_hook_http, hook, undefined)),
+  {do_http_request(ClientId, Username, Action, Topic, HookRequest), Obj}.
 
 do_hook_request(ClientId, Username, Action, Topic) ->
-  HookReq = get_req(application:get_env(emq_hook_http, hook_req, undefined)),
-  do_http_request(ClientId, Username, Action, Topic, HookReq).
+  HookRequest = get_request(application:get_env(emq_hook_http, hook, undefined)),
+  do_http_request(ClientId, Username, Action, Topic, HookRequest).
 
 do_http_request(ClientId, Username, Action, Topic, #http_request{method = Method, url = Url, params = Params, appkey = Appkey}) ->
   case request(Method, Url, feed_params_val(Params, ClientId, Username, Action, Appkey, Topic)) of
@@ -109,7 +109,7 @@ do_http_request(ClientId, Username, Action, Topic, #http_request{method = Method
     {error, _Error} -> error
   end.
 
-get_req(Config) ->
+get_request(Config) ->
   Method = proplists:get_value(method, Config, post),
   Url = proplists:get_value(url, Config),
   Params = proplists:get_value(params, Config),

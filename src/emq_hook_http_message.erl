@@ -36,41 +36,51 @@
 
 %% Hooks functions
 
--export([on_message_publish/2, on_message_delivered/4, on_message_acked/4]).
+-export([on_message_publish/2, on_message_delivered/4, on_message_ack/4]).
 
 %% Called when the plugin application start
 load(Env) ->
   emqttd:hook('message.publish', fun ?MODULE:on_message_publish/2, [Env]),
   emqttd:hook('message.delivered', fun ?MODULE:on_message_delivered/4, [Env]),
-  emqttd:hook('message.acked', fun ?MODULE:on_message_acked/4, [Env]).
+  emqttd:hook('message.acked', fun ?MODULE:on_message_ack/4, [Env]).
 
 %% Called when the plugin application stop
 unload() ->
   emqttd:unhook('message.publish', fun ?MODULE:on_message_publish/2),
   emqttd:unhook('message.delivered', fun ?MODULE:on_message_delivered/4),
-  emqttd:unhook('message.acked', fun ?MODULE:on_message_acked/4).
+  emqttd:unhook('message.acked', fun ?MODULE:on_message_ack/4).
 
 %% -------------------------------------------------------
 %% Message
 %% -------------------------------------------------------
 
+%% message publish
 on_message_publish(Message = #mqtt_message{topic = <<"$SYS/", _/binary>>}, _Env) ->
   {ok, Message};
 
+%% message publish
 on_message_publish(Message, _Env) ->
   io:format("\n publish ~s~n", [emqttd_message:format(Message)]),
   Action = on_message_publish,
   do_hook_request(Action, Message).
 
+%% message delivered
 on_message_delivered(ClientId, Username, Message, _Env) ->
   io:format("\n delivered to client(~s/~s): ~s~n", [Username, ClientId, emqttd_message:format(Message)]),
   Action = on_message_delivered,
   do_hook_request(ClientId, Username, Action, Message).
 
-on_message_acked(ClientId, Username, Message, _Env) ->
+%% message ask
+on_message_ack(ClientId, Username, Message = #mqtt_message{topic = Topic, payload = Payload}, _Env) ->
   io:format("\n client(~s/~s) acked: ~s~n", [Username, ClientId, emqttd_message:format(Message)]),
   Client = emqttd_cm:lookup(ClientId),
-  handle_auto_sub(Message, Client),
+  FlagSub = string:equal(binary_to_list(Topic), "$command/auto_sub/" ++ Username ++ "/sub/"),
+  FlagUnSub = string:equal(binary_to_list(Topic), "$command/auto_sub/" ++ Username ++ "/unsub/"),
+  if
+    FlagSub -> handle_subscribe(Payload, Client);
+    FlagUnSub -> handle_un_subscribe(Payload, Client);
+    true -> ()
+  end,
   Action = on_message_acked,
   do_hook_request(ClientId, Username, Action, Message).
 
@@ -78,14 +88,18 @@ on_message_acked(ClientId, Username, Message, _Env) ->
 %% handle_auto_sub
 %% -------------------------------------------------------
 
-handle_auto_sub(_Message = #mqtt_message{topic = Topic, payload = Payload}, _Client = #mqtt_client{username = Username, client_id = ClientId, client_pid = ClientPid}) ->
-  Flag =  string:equal(binary_to_list(Topic), "$PA/AUTO_SUB/" ++ Username),
-  if
-    Flag ->
-      io:format("\n  auto sub client ~s,pid:~w~n", [ClientId, ClientPid]),
-      TopicTable = [{Payload, 1}],
-      ClientPid ! {subscribe, TopicTable}
-  end,
+%% subscribe
+handle_subscribe(Topic, _Client = #mqtt_client{client_id = ClientId, client_pid = ClientPid}) ->
+  io:format("\n  handle subscribe clientId:~s,pid:~w~n", [ClientId, ClientPid]),
+  TopicTable = [{Topic, 1}],
+  ClientPid ! {subscribe, TopicTable},
+  ok.
+
+%% un subscribe
+handle_un_subscribe(Topic, _Client = #mqtt_client{client_id = ClientId, client_pid = ClientPid}) ->
+  io:format("\n  handle un subscribe clientId:~s,pid:~w~n", [ClientId, ClientPid]),
+  TopicTable = [{Topic}],
+  ClientPid ! {unsubscribe, TopicTable},
   ok.
 
 %% -------------------------------------------------------
@@ -93,12 +107,12 @@ handle_auto_sub(_Message = #mqtt_message{topic = Topic, payload = Payload}, _Cli
 %% -------------------------------------------------------
 
 do_hook_request(Action, Message = #mqtt_message{topic = Topic, payload = Payload, from = {ClientId, Username}}) ->
-  HookReq = get_req(application:get_env(emq_hook_http, hook_req, undefined)),
-  {do_http_request(ClientId, Username, Action, Topic, Payload, HookReq), Message}.
+  HookRequest = get_request(application:get_env(emq_hook_http, hook, undefined)),
+  {do_http_request(ClientId, Username, Action, Topic, Payload, HookRequest), Message}.
 
 do_hook_request(ClientId, Username, Action, Message = #mqtt_message{topic = Topic, payload = Payload}) ->
-  HookReq = get_req(application:get_env(emq_hook_http, hook_req, undefined)),
-  {do_http_request(ClientId, Username, Action, Topic, Payload, HookReq), Message}.
+  HookRequest = get_request(application:get_env(emq_hook_http, hook, undefined)),
+  {do_http_request(ClientId, Username, Action, Topic, Payload, HookRequest), Message}.
 
 do_http_request(ClientId, Username, Action, Topic, Payload, #http_request{method = Method, url = Url, params = Params, appkey = Appkey}) ->
   case request(Method, Url, feed_params_val(Params, ClientId, Username, Action, Appkey, Topic, Payload)) of
@@ -107,7 +121,7 @@ do_http_request(ClientId, Username, Action, Topic, Payload, #http_request{method
     {error, _Error} -> error
   end.
 
-get_req(Config) ->
+get_request(Config) ->
   Method = proplists:get_value(method, Config, post),
   Url = proplists:get_value(url, Config),
   Params = proplists:get_value(params, Config),

@@ -1,5 +1,5 @@
 PROJECT = emq_hook_http
-PROJECT_DESCRIPTION = EMQ Hook Http Plugin
+PROJECT_DESCRIPTION = EMQ Hook by HTTP API for Plugin
 PROJECT_VERSION = 1.0.0
 
 BUILD_DEPS = emqttd cuttlefish
