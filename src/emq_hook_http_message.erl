@@ -77,9 +77,13 @@ on_message_ack(ClientId, Username, Message = #mqtt_message{topic = Topic, payloa
   FlagSub = string:equal(binary_to_list(Topic), "$command/auto_sub/" ++ Username ++ "/sub/"),
   FlagUnSub = string:equal(binary_to_list(Topic), "$command/auto_sub/" ++ Username ++ "/unsub/"),
   if
-    FlagSub -> handle_subscribe(Payload, Client);
-    FlagUnSub -> handle_un_subscribe(Payload, Client);
-    true -> ()
+    FlagSub ->
+      handle_subscribe(Payload, Client);
+    true;
+    FlagUnSub ->
+      handle_un_subscribe(Payload, Client);
+    true ->
+      false
   end,
   Action = on_message_acked,
   do_hook_request(ClientId, Username, Action, Message).
