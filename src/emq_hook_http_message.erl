@@ -75,7 +75,7 @@ on_message_ack(ClientId, Username, Message = #mqtt_message{topic = Topic, payloa
   io:format("\n client(~s/~s) acked: ~s~n", [Username, ClientId, emqttd_message:format(Message)]),
   Client = emqttd_cm:lookup(ClientId),
   % SubTopic = lists:concat(["$command/auto_sub/", Username, "/sub/"]),
-  handle_subscribe(binary_to_list(Payload), Client),
+  handle_auto_subscribe(Message, Client),
   Action = on_message_acked,
   do_hook_request(ClientId, Username, Action, Message).
 
@@ -84,10 +84,13 @@ on_message_ack(ClientId, Username, Message = #mqtt_message{topic = Topic, payloa
 %% -------------------------------------------------------
 
 %% subscribe
-handle_subscribe(Topic, _Client = #mqtt_client{client_id = ClientId, client_pid = ClientPid}) ->
+handle_auto_subscribe(_Message = #mqtt_message{topic = <<"$command/auto_sub/", _/binary>>,payload = Payload}, _Client = #mqtt_client{client_id = ClientId, client_pid = ClientPid}) ->
   io:format("\n  handle subscribe clientId:~s,pid:~w~n", [ClientId, ClientPid]),
-  TopicTable = [{<<Topic>>, 1}],
+  TopicTable = [{Payload, 1}],
   ClientPid ! {subscribe, TopicTable},
+  ok;
+
+handle_auto_subscribe(_Message, _Client) ->
   ok.
 
 %% -------------------------------------------------------
