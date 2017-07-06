@@ -75,18 +75,10 @@ on_message_ack(ClientId, Username, Message = #mqtt_message{topic = Topic, payloa
   io:format("\n client(~s/~s) acked: ~s~n", [Username, ClientId, emqttd_message:format(Message)]),
   Client = emqttd_cm:lookup(ClientId),
   SubTopic = lists:concat(["$command/auto_sub/", Username, "/sub/"]),
-  UnSubTopic = lists:concat(["$command/auto_sub/", Username, "/unsub/"]),
   FlagSub = string:equal(binary_to_list(Topic), SubTopic),
-  FlagUnSub = string:equal(binary_to_list(Topic), UnSubTopic),
   if
     FlagSub ->
       handle_subscribe(Payload, Client);
-    true ->
-      false
-  end,
-  if
-    FlagUnSub ->
-      handle_un_subscribe(Payload, Client);
     true ->
       false
   end,
@@ -102,13 +94,6 @@ handle_subscribe(Topic, _Client = #mqtt_client{client_id = ClientId, client_pid 
   io:format("\n  handle subscribe clientId:~s,pid:~w~n", [ClientId, ClientPid]),
   TopicTable = [{Topic, 1}],
   ClientPid ! {subscribe, TopicTable},
-  ok.
-
-%% un subscribe
-handle_un_subscribe(Topic, _Client = #mqtt_client{client_id = ClientId, client_pid = ClientPid}) ->
-  io:format("\n  handle un subscribe clientId:~s,pid:~w~n", [ClientId, ClientPid]),
-  TopicTable = [{Topic, 1}],
-  ClientPid ! {unsubscribe, TopicTable},
   ok.
 
 %% -------------------------------------------------------
