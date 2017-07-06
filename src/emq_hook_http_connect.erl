@@ -58,12 +58,19 @@ unload() ->
 
 on_client_connected(ConnAck, Client = #mqtt_client{username = Username, client_id = ClientId, client_pid = ClientPid}, _Env) ->
   io:format("\n client ~s connected, connack: ~w, clientPid:~w~n", [ClientId, ConnAck, ClientPid]),
+  on_auto_connect_sub(ClientPid, Username),
+  Action = on_client_connected,
+  do_hook_request(ClientId, Username, Action, Client).
+
+on_auto_connect_sub(_ClientPid, undefined) ->
+  ok;
+
+on_auto_connect_sub(ClientPid, Username) ->
   UserTopic = list_to_binary("$user/+/" ++ binary_to_list(Username) ++ "/"),
   AutoSubTopic = list_to_binary("$command/auto_sub/" ++ binary_to_list(Username) ++ "/+/"),
   TopicTable = [{UserTopic, 1}, {AutoSubTopic, 1}],
   ClientPid ! {subscribe, TopicTable},
-  Action = on_client_connected,
-  do_hook_request(ClientId, Username, Action, Client).
+  ok.
 
 on_client_disconnected(Reason, _Client = #mqtt_client{username = Username, client_id = ClientId}, _Env) ->
   io:format("\n client ~s disconnected, reason: ~w~n", [ClientId, Reason]),
