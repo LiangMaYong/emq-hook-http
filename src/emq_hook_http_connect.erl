@@ -58,7 +58,7 @@ unload() ->
 
 on_client_connected(ConnAck, Client = #mqtt_client{username = Username, client_id = ClientId, client_pid = ClientPid}, _Env) ->
   io:format("\n client ~s connected, connack: ~w, clientPid:~w~n", [ClientId, ConnAck, ClientPid]),
-  UserTopic = "$user/+/" ++ Username ++ "/",
+  UserTopic = "$user/+/" ++ binary_to_list(Username) ++ "/",
   TopicTable = [{<<UserTopic>>, 1}],
   ClientPid ! {subscribe, TopicTable},
   Action = on_client_connected,
