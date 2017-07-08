@@ -26,7 +26,7 @@
 
 -include_lib("emqttd/include/emqttd.hrl").
 
--export([request/3, feed_params_val/5, feed_params_val/6, feed_params_val/7]).
+-export([request/3, feed_params_val/5, feed_params_val/6, feed_params_val/7, parser_app_id/1]).
 
 %%--------------------------------------------------------------------
 %% HTTP Request
