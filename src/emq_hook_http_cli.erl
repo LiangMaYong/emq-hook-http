@@ -84,5 +84,8 @@ feed_params_val(Params, ClientId, Username, Action, AppKey, Topic, Payload) ->
               (Param) -> Param
             end, Params).
 
+parser_app_id(_ClientId) ->
+  "ad".
+
 
 

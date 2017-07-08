@@ -30,7 +30,7 @@
 
 -export([load/1, unload/0]).
 
--import(emq_hook_http_cli, [request/3, feed_params_val/5, feed_params_val/6, feed_params_val/7]).
+-import(emq_hook_http_cli, [request/3, feed_params_val/5, feed_params_val/6, feed_params_val/7,parser_app_id/1]).
 
 %% Hooks functions
 
@@ -58,16 +58,16 @@ unload() ->
 
 on_client_connected(ConnAck, Client = #mqtt_client{username = Username, client_id = ClientId, client_pid = ClientPid}, _Env) ->
   io:format("\n client ~s connected, connack: ~w, clientPid:~w~n", [ClientId, ConnAck, ClientPid]),
-  on_auto_connect_sub(ClientPid, Username),
+  on_auto_connect_sub(ClientId, ClientPid, Username),
   Action = on_client_connected,
   do_hook_request(ClientId, Username, Action, Client).
 
-on_auto_connect_sub(_ClientPid, undefined) ->
+on_auto_connect_sub(_ClientId, _ClientPid, undefined) ->
   ok;
 
-on_auto_connect_sub(ClientPid, Username) ->
-  UserTopic = list_to_binary("$private/+/" ++ binary_to_list(Username) ++ "/"),
-  AutoSubTopic = list_to_binary("$command/subscribe/" ++ binary_to_list(Username) ++ "/+/"),
+on_auto_connect_sub(ClientId, ClientPid, Username) ->
+  UserTopic = list_to_binary("$private/" ++ parser_app_id(ClientId) ++ "/+/" ++ binary_to_list(Username) ++ "/"),
+  AutoSubTopic = list_to_binary("$command/" ++ parser_app_id(ClientId) ++ "/subscribe/" ++ binary_to_list(Username) ++ "/+/"),
   TopicTable = [{UserTopic, 1}, {AutoSubTopic, 1}],
   ClientPid ! {subscribe, TopicTable},
   ok.
@@ -117,3 +117,4 @@ get_request(Config) ->
   Params = proplists:get_value(params, Config),
   AppKey = proplists:get_value(appkey, Config),
   #http_request{method = Method, url = Url, params = Params, appkey = AppKey}.
+

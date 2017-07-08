@@ -32,7 +32,7 @@
 
 -export([load/1, unload/0]).
 
--import(emq_hook_http_cli, [request/3, feed_params_val/5, feed_params_val/6, feed_params_val/7]).
+-import(emq_hook_http_cli, [request/3, feed_params_val/5, feed_params_val/6, feed_params_val/7, parser_app_id/1]).
 
 %% Hooks functions
 
@@ -83,11 +83,19 @@ on_message_ack(ClientId, Username, Message = #mqtt_message{topic = Topic, payloa
 %% handle_auto_sub
 %% -------------------------------------------------------
 
-%% subscribe
-handle_auto_subscribe(_Message = #mqtt_message{topic = <<"$command/subscribe/", _/binary>>,payload = Payload}, _Client = #mqtt_client{client_id = ClientId, client_pid = ClientPid}) ->
-  io:format("\n  handle subscribe clientId:~s,pid:~w~n", [ClientId, ClientPid]),
-  TopicTable = [{Payload, 1}],
-  ClientPid ! {subscribe, TopicTable},
+%% auto subscribe
+handle_auto_subscribe(Message = #mqtt_message{topic = <<"$command/", _/binary>>, payload = Payload}, _Client = #mqtt_client{username = Username, client_id = ClientId, client_pid = ClientPid}) ->
+  Topic = Message#mqtt_message.topic,
+  io:format("\n  handle command message topic:~s, clientId:~s,pid:~w~n", [Topic,ClientId, ClientPid]),
+  FlagSub = string:equal(binary_to_list(Topic), "$command/" ++ parser_app_id(ClientId) +"/subscribe/"++ Username ++ "/sub/"),
+  if
+    FlagSub ->
+      TopicTable = [{Payload, 1}],
+      ClientPid ! {subscribe, TopicTable},
+    true;
+    true ->
+      false
+  end,
   ok;
 
 handle_auto_subscribe(_Message, _Client) ->
