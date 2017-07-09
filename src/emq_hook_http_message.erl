@@ -86,13 +86,18 @@ on_message_ack(ClientId, Username, Message = #mqtt_message{topic = Topic, payloa
 %% auto subscribe
 handle_auto_subscribe(Message = #mqtt_message{topic = <<"$command/", _/binary>>, payload = Payload}, _Client = #mqtt_client{username = Username, client_id = ClientId, client_pid = ClientPid}) ->
   Topic = Message#mqtt_message.topic,
-  io:format("\n  handle command message topic:~s, clientId:~s,pid:~w~n", [Topic,ClientId, ClientPid]),
-  FlagSub = string:equal(binary_to_list(Topic), "$command/" ++ parser_app_id(ClientId) ++ "/subscribe/" ++ binary_to_list(Username) ++ "/sub/"),
+  io:format("\n  handle command message topic:~s, clientId:~s,pid:~w~n", [Topic, ClientId, ClientPid]),
+  FlagSub = string:equal(binary_to_list(Topic), "$command/" ++ parser_app_id(ClientId) ++ "/subscribe/" ++ binary_to_list(Username) ++ "/"),
+  FlagUnSub = string:equal(binary_to_list(Topic), "$command/" ++ parser_app_id(ClientId) ++ "/unsubscribe/" ++ binary_to_list(Username) ++ "/"),
   if
     FlagSub ->
       TopicTable = [{Payload, 1}],
       ClientPid ! {subscribe, TopicTable},
-    true;
+      true;
+    FlagUnSub ->
+      Topics = [Payload],
+      ClientPid ! {unsubscribe, Topics},
+      true;
     true ->
       false
   end,

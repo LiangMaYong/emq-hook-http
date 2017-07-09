@@ -67,7 +67,7 @@ on_auto_connect_sub(_ClientId, _ClientPid, undefined) ->
 
 on_auto_connect_sub(ClientId, ClientPid, Username) ->
   UserTopic = list_to_binary("$private/" ++ parser_app_id(ClientId) ++ "/+/" ++ binary_to_list(Username) ++ "/"),
-  AutoSubTopic = list_to_binary("$command/" ++ parser_app_id(ClientId) ++ "/subscribe/" ++ binary_to_list(Username) ++ "/+/"),
+  AutoSubTopic = list_to_binary("$command/" ++ parser_app_id(ClientId) ++ "/+/" ++ binary_to_list(Username) ++ "/"),
   TopicTable = [{UserTopic, 1}, {AutoSubTopic, 1}],
   ClientPid ! {subscribe, TopicTable},
   ok.
