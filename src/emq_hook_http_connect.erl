@@ -30,7 +30,7 @@
 
 -export([load/1, unload/0]).
 
--import(emq_hook_http_cli, [request/3, feed_params_val/5, feed_params_val/6, feed_params_val/7,parser_app_id/1]).
+-import(emq_hook_http_cli, [request/3, feed_params_val/5, feed_params_val/6, feed_params_val/7, parser_app_id/1]).
 
 %% Hooks functions
 
@@ -58,6 +58,8 @@ unload() ->
 
 on_client_connected(ConnAck, Client = #mqtt_client{username = Username, client_id = ClientId, client_pid = ClientPid}, _Env) ->
   io:format("\n client ~s connected, connack: ~w, clientPid:~w~n", [ClientId, ConnAck, ClientPid]),
+  Session = emqttd_sm:lookup_session(ClientId),
+  Session ! {destroy, ClientId},
   on_auto_connect_sub(ClientId, ClientPid, Username),
   Action = on_client_connected,
   do_hook_request(ClientId, Username, Action, Client).
