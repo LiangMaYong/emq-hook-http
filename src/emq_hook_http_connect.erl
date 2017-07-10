@@ -58,8 +58,6 @@ unload() ->
 
 on_client_connected(ConnAck, Client = #mqtt_client{username = Username, client_id = ClientId, client_pid = ClientPid}, _Env) ->
   io:format("\n client ~s connected, connack: ~w, clientPid:~w~n", [ClientId, ConnAck, ClientPid]),
-  Session = emqttd_sm:lookup_session(ClientId),
-  Session ! {destroy, ClientId},
   on_auto_connect_sub(ClientId, ClientPid, Username),
   Action = on_client_connected,
   do_hook_request(ClientId, Username, Action, Client).
